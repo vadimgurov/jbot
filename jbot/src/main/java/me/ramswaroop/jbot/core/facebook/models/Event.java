@@ -27,6 +27,7 @@ public class Event {
     private Message message;
     @JsonProperty("messaging_type")
     private String messagingType;
+    private String tag;
     private Postback postback;
     private Referral optin;
     private Referral referral;
@@ -104,6 +105,15 @@ public class Event {
 
     public Event setMessagingType(String messagingType) {
         this.messagingType = messagingType;
+        return this;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public Event setTag(String tag) {
+        this.tag = tag;
         return this;
     }
 
