@@ -1,8 +1,11 @@
 package me.ramswaroop.jbot.core.facebook.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author ramswaroop
@@ -91,6 +94,7 @@ public class Payload {
         return this;
     }
 
+    @JsonIgnore
     public Boolean isReusable() {
         return isReusable;
     }
@@ -98,10 +102,6 @@ public class Payload {
     public Payload setReusable(Boolean reusable) {
         isReusable = reusable;
         return this;
-    }
-
-    public Boolean getReusable() {
-        return isReusable;
     }
 
     public String getAttachmentId() {
