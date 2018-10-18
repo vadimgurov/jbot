@@ -8,15 +8,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.*;
+import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.resource.TransformedResource;
 
 import javax.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -156,6 +160,41 @@ public abstract class Bot extends BaseBot {
         logger.debug("Send message: {}", event.toString());
         try {
             return restTemplate.postForEntity(fbSendUrl, event, String.class);
+        } catch (HttpClientErrorException e) {
+            logger.error("Send message error: Response body: {} \nException: ", e.getResponseBodyAsString(), e);
+            return new ResponseEntity<>(e.getResponseBodyAsString(), e.getStatusCode());
+        }
+    }
+
+    /**
+     * https://developers.facebook.com/docs/messenger-platform/send-messages#sending_attachments
+     * @param event
+     * @param fileContent
+     * @return
+     */
+    protected final ResponseEntity<String> reply(Event event, String fileName, byte[] fileContent, MediaType mediaType) {
+        sendTypingOffIndicator(event.getRecipient());
+        logger.debug("Send message with file: {}", event.toString());
+        try {
+            MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
+            bodyMap.add("recipient", event.getRecipient());
+            bodyMap.add("message", event.getMessage());
+
+            Resource file = new ByteArrayResource(fileContent){
+                @Override
+                public String getFilename(){
+                    return fileName;
+                }
+            };
+            HttpHeaders fileHeaders = new HttpHeaders();
+            fileHeaders.setContentType(mediaType);
+            bodyMap.add("filedata", new HttpEntity<>(file, fileHeaders));
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(bodyMap, headers);
+
+            return restTemplate.exchange(fbSendUrl, HttpMethod.POST, requestEntity, String.class);
         } catch (HttpClientErrorException e) {
             logger.error("Send message error: Response body: {} \nException: ", e.getResponseBodyAsString(), e);
             return new ResponseEntity<>(e.getResponseBodyAsString(), e.getStatusCode());
