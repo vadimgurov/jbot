@@ -112,7 +112,7 @@ public abstract class Bot extends BaseBot {
                             } else {
                                 event.setType(EventType.MESSAGE);
                                 // send typing on indicator to create a conversational experience
-                                sendTypingOnIndicator(event.getSender());
+                                // sendTypingOnIndicator(event.getSender());
                             }
                         } else if (event.getDelivery() != null) {
                             event.setType(EventType.MESSAGE_DELIVERED);
@@ -145,6 +145,7 @@ public abstract class Bot extends BaseBot {
         return ResponseEntity.ok("EVENT_RECEIVED");
     }
 
+/*
     private void sendTypingOnIndicator(User recipient) {
         restTemplate.postForEntity(fbSendUrl,
                 new Event().setRecipient(recipient).setSenderAction("typing_on"), Response.class);
@@ -154,9 +155,10 @@ public abstract class Bot extends BaseBot {
         restTemplate.postForEntity(fbSendUrl,
                 new Event().setRecipient(recipient).setSenderAction("typing_off"), Response.class);
     }
+*/
 
     protected final ResponseEntity<String> reply(Event event) {
-        sendTypingOffIndicator(event.getRecipient());
+        // sendTypingOffIndicator(event.getRecipient());
         logger.debug("Send message: {}", event.toString());
         try {
             return restTemplate.postForEntity(fbSendUrl, event, String.class);
@@ -173,7 +175,7 @@ public abstract class Bot extends BaseBot {
      * @return
      */
     protected final ResponseEntity<String> reply(Event event, String fileName, byte[] fileContent, MediaType mediaType) {
-        sendTypingOffIndicator(event.getRecipient());
+        // sendTypingOffIndicator(event.getRecipient());
         logger.debug("Send message with file: {}", event.toString());
         try {
             MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
