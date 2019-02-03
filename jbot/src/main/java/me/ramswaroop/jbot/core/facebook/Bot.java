@@ -179,6 +179,10 @@ public abstract class Bot extends BaseBot {
         logger.debug("Send message with file: {}", event.toString());
         try {
             MultiValueMap<String, Object> bodyMap = new LinkedMultiValueMap<>();
+            bodyMap.add("messaging_type", event.getMessagingType());
+            if (event.getTag() != null) {
+                bodyMap.add("tag", event.getTag());
+            }
             bodyMap.add("recipient", event.getRecipient());
             bodyMap.add("message", event.getMessage());
 
